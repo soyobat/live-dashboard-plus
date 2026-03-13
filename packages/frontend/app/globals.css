@@ -1,0 +1,165 @@
+@import url("https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&family=Quicksand:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap");
+@import "tailwindcss";
+
+@theme {
+  --color-cream: #FFF8E7;
+  --color-sakura-bg: #FFF0F3;
+  --color-card: #FFFDF7;
+  --color-border: #E8D5C4;
+  --color-primary: #E8A0BF;
+  --color-secondary: #88C9C9;
+  --color-accent: #E8B86D;
+  --color-text: #2D2B2B;
+  --color-text-muted: #8B7E74;
+
+  --font-sans: "Quicksand", "Zen Maru Gothic", system-ui, sans-serif;
+  --font-jp: "Zen Maru Gothic", "Quicksand", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+}
+
+/* === Base === */
+body {
+  font-family: var(--font-sans);
+  color: var(--color-text);
+  background-color: var(--color-cream);
+}
+
+/* === Decorative scattered petals (static, no animation) === */
+.petal {
+  position: fixed;
+  pointer-events: none;
+  opacity: 0.15;
+  z-index: 0;
+}
+.petal::before {
+  content: "";
+  display: block;
+  width: 12px;
+  height: 12px;
+  background: var(--color-primary);
+  border-radius: 50% 0 50% 0;
+}
+.petal:nth-child(1) { top: 8%; left: 5%; transform: rotate(25deg); }
+.petal:nth-child(2) { top: 15%; right: 12%; transform: rotate(-40deg); opacity: 0.1; }
+.petal:nth-child(3) { top: 45%; left: 3%; transform: rotate(60deg); opacity: 0.12; }
+.petal:nth-child(4) { bottom: 20%; right: 8%; transform: rotate(-15deg); }
+.petal:nth-child(5) { bottom: 35%; left: 15%; transform: rotate(45deg); opacity: 0.08; }
+.petal:nth-child(6) { top: 70%; right: 25%; transform: rotate(-55deg); opacity: 0.1; }
+
+/* === Card with decorative corner accents === */
+.card-decorated {
+  position: relative;
+  border: 2px solid var(--color-border);
+  background: var(--color-card);
+  transition: border-color 0.2s ease;
+}
+.card-decorated:hover {
+  border-color: var(--color-primary);
+}
+.card-decorated::before,
+.card-decorated::after {
+  content: "";
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-color: var(--color-primary);
+  opacity: 0.5;
+  pointer-events: none;
+}
+.card-decorated::before {
+  top: -1px;
+  left: -1px;
+  border-top: 2px solid;
+  border-left: 2px solid;
+  border-radius: 2px 0 0 0;
+}
+.card-decorated::after {
+  bottom: -1px;
+  right: -1px;
+  border-bottom: 2px solid;
+  border-right: 2px solid;
+  border-radius: 0 0 2px 0;
+}
+
+/* === VN-style dialog bubble === */
+.vn-bubble {
+  position: relative;
+  background: var(--color-card);
+  border: 2px solid var(--color-border);
+  border-radius: 6px;
+  padding: 8px 12px;
+}
+.vn-bubble::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 16px;
+  border: 6px solid transparent;
+  border-top-color: var(--color-card);
+}
+.vn-bubble::before {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 14px;
+  border: 8px solid transparent;
+  border-top-color: var(--color-border);
+}
+
+/* === Pill button === */
+.pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 14px;
+  border: 2px solid var(--color-border);
+  border-radius: 4px;
+  background: var(--color-card);
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 0.875rem;
+  color: var(--color-text);
+  cursor: pointer;
+  transition: border-color 0.2s, transform 0.1s, box-shadow 0.1s;
+}
+.pill-btn:hover {
+  border-color: var(--color-primary);
+}
+.pill-btn:active {
+  transform: translateY(1px);
+  box-shadow: none;
+}
+
+/* === Loading dots === */
+.loading-dots span {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin: 0 3px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  animation: bounce 1.4s ease-in-out infinite;
+}
+.loading-dots span:nth-child(2) { animation-delay: 0.16s; }
+.loading-dots span:nth-child(3) { animation-delay: 0.32s; }
+
+@keyframes bounce {
+  0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
+  40% { transform: translateY(-8px); opacity: 1; }
+}
+
+/* === Timeline bar (manga panel style) === */
+.timeline-bar {
+  border: 2px solid var(--color-border);
+  border-radius: 4px;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+.timeline-bar:hover {
+  border-color: var(--color-primary);
+}
+
+/* === Dashed separator === */
+.separator-dashed {
+  border-top: 2px dashed var(--color-border);
+}

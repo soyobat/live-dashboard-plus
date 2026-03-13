@@ -1,0 +1,16 @@
+node_modules/
+.next/
+out/
+dist/
+*.db
+*.db-journal
+*.db-wal
+.env
+.env.local
+agents/windows/config.json
+agents/android/config.sh
+*.exe
+__pycache__/
+*.spec
+build/
+*.zip
