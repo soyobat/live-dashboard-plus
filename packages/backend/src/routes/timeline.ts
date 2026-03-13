@@ -39,7 +39,6 @@ export function handleTimeline(url: URL): Response {
     segments.push({
       app_name: a.app_name,
       app_id: a.app_id,
-      window_title: a.window_title,
       started_at: a.started_at,
       ended_at: endedAt,
       duration_minutes: durationMinutes,

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useReducer } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
   fetchCurrent,
   fetchTimeline,
@@ -8,7 +8,7 @@ import {
   type TimelineResponse,
 } from "@/lib/api";
 
-const POLL_INTERVAL = 10 * 60 * 1000; // 10 minutes
+const POLL_INTERVAL = 10 * 1000; // 10 seconds
 
 function todayStr(): string {
   const d = new Date();
@@ -21,8 +21,8 @@ export function useDashboard() {
   const [selectedDate, setSelectedDate] = useState(todayStr);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  // Incrementing counter to force effect re-run on manual refresh
-  const [refreshKey, forceRefresh] = useReducer((c: number) => c + 1, 0);
+  const [viewerCount, setViewerCount] = useState(0);
+  const firstLoad = useRef(true);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -32,15 +32,16 @@ export function useDashboard() {
       const thisRequest = ++requestId;
       try {
         setError(null);
-        setLoading(true);
+        if (firstLoad.current) setLoading(true);
         const [cur, tl] = await Promise.all([
           fetchCurrent(controller.signal),
           fetchTimeline(selectedDate, controller.signal),
         ]);
-        // Only apply if this is still the latest request and not aborted
         if (!controller.signal.aborted && thisRequest === requestId) {
           setCurrent(cur);
           setTimeline(tl);
+          setViewerCount(cur.viewer_count ?? 0);
+          firstLoad.current = false;
         }
       } catch (e) {
         if (!controller.signal.aborted && thisRequest === requestId) {
@@ -53,6 +54,7 @@ export function useDashboard() {
       }
     };
 
+    firstLoad.current = true;
     doFetch();
     const pollId = setInterval(doFetch, POLL_INTERVAL);
 
@@ -60,11 +62,11 @@ export function useDashboard() {
       controller.abort();
       clearInterval(pollId);
     };
-  }, [selectedDate, refreshKey]);
+  }, [selectedDate]);
 
   const changeDate = useCallback((date: string) => {
     setSelectedDate(date);
   }, []);
 
-  return { current, timeline, selectedDate, changeDate, loading, error, refresh: forceRefresh };
+  return { current, timeline, selectedDate, changeDate, loading, error, viewerCount };
 }

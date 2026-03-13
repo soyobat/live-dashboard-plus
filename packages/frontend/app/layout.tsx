@@ -14,13 +14,15 @@ export default function RootLayout({
   return (
     <html lang="zh-CN">
       <body className="min-h-screen bg-[var(--color-cream)] relative overflow-x-hidden">
-        {/* Scattered sakura petals */}
-        <div className="petal" />
-        <div className="petal" />
-        <div className="petal" />
-        <div className="petal" />
-        <div className="petal" />
-        <div className="petal" />
+        {/* Animated sakura petals */}
+        <div className="petal petal-fall" />
+        <div className="petal petal-fall" />
+        <div className="petal petal-fall" />
+        <div className="petal petal-fall" />
+        <div className="petal petal-fall" />
+        <div className="petal petal-fall" />
+        <div className="petal petal-fall" />
+        <div className="petal petal-fall" />
 
         <main className="relative z-10 max-w-4xl mx-auto px-4 py-8">
           {children}

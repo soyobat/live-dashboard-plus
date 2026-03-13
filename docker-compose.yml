@@ -6,6 +6,7 @@ services:
     environment:
       - PORT=3000
       - STATIC_DIR=/app/public
+      - DB_PATH=/data/live-dashboard.db
       - DEVICE_TOKEN_1=${DEVICE_TOKEN_1}
       - DEVICE_TOKEN_2=${DEVICE_TOKEN_2}
     volumes:

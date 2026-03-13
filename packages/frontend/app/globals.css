@@ -24,11 +24,10 @@ body {
   background-color: var(--color-cream);
 }
 
-/* === Decorative scattered petals (static, no animation) === */
+/* === Animated sakura petals === */
 .petal {
   position: fixed;
   pointer-events: none;
-  opacity: 0.15;
   z-index: 0;
 }
 .petal::before {
@@ -38,23 +37,79 @@ body {
   height: 12px;
   background: var(--color-primary);
   border-radius: 50% 0 50% 0;
+  opacity: 0.18;
 }
-.petal:nth-child(1) { top: 8%; left: 5%; transform: rotate(25deg); }
-.petal:nth-child(2) { top: 15%; right: 12%; transform: rotate(-40deg); opacity: 0.1; }
-.petal:nth-child(3) { top: 45%; left: 3%; transform: rotate(60deg); opacity: 0.12; }
-.petal:nth-child(4) { bottom: 20%; right: 8%; transform: rotate(-15deg); }
-.petal:nth-child(5) { bottom: 35%; left: 15%; transform: rotate(45deg); opacity: 0.08; }
-.petal:nth-child(6) { top: 70%; right: 25%; transform: rotate(-55deg); opacity: 0.1; }
+
+/* Falling animation */
+.petal-fall {
+  animation: petal-drift linear infinite;
+  will-change: transform, opacity;
+}
+
+.petal:nth-child(1) { left: 8%; animation-duration: 18s; animation-delay: 0s; }
+.petal:nth-child(2) { left: 22%; animation-duration: 22s; animation-delay: -4s; }
+.petal:nth-child(3) { left: 38%; animation-duration: 20s; animation-delay: -8s; }
+.petal:nth-child(4) { left: 55%; animation-duration: 24s; animation-delay: -2s; }
+.petal:nth-child(5) { left: 68%; animation-duration: 19s; animation-delay: -12s; }
+.petal:nth-child(6) { left: 80%; animation-duration: 21s; animation-delay: -6s; }
+.petal:nth-child(7) { left: 92%; animation-duration: 23s; animation-delay: -10s; }
+.petal:nth-child(8) { left: 48%; animation-duration: 17s; animation-delay: -15s; }
+
+.petal:nth-child(2)::before,
+.petal:nth-child(5)::before,
+.petal:nth-child(8)::before {
+  width: 8px;
+  height: 8px;
+  opacity: 0.12;
+}
+
+@keyframes petal-drift {
+  0% {
+    transform: translateY(-20px) translateX(0) rotate(0deg);
+    opacity: 0;
+  }
+  5% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(calc(100vh + 20px)) translateX(80px) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .petal-fall {
+    animation: none;
+  }
+  .petal {
+    opacity: 0.1;
+  }
+  .petal:nth-child(1) { top: 8%; }
+  .petal:nth-child(2) { top: 20%; }
+  .petal:nth-child(3) { top: 35%; }
+  .petal:nth-child(4) { top: 50%; }
+  .petal:nth-child(5) { top: 65%; }
+  .petal:nth-child(6) { top: 78%; }
+  .petal:nth-child(7) { top: 88%; }
+  .petal:nth-child(8) { top: 42%; }
+
+  .card-decorated {
+    animation: none !important;
+  }
+}
 
 /* === Card with decorative corner accents === */
 .card-decorated {
   position: relative;
   border: 2px solid var(--color-border);
   background: var(--color-card);
-  transition: border-color 0.2s ease;
+  transition: border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
 }
 .card-decorated:hover {
   border-color: var(--color-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(232, 160, 191, 0.15);
 }
 .card-decorated::before,
 .card-decorated::after {
@@ -65,6 +120,11 @@ body {
   border-color: var(--color-primary);
   opacity: 0.5;
   pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.card-decorated:hover::before,
+.card-decorated:hover::after {
+  opacity: 0.8;
 }
 .card-decorated::before {
   top: -1px;
@@ -88,6 +148,10 @@ body {
   border: 2px solid var(--color-border);
   border-radius: 6px;
   padding: 8px 12px;
+  transition: border-color 0.2s ease;
+}
+.vn-bubble:hover {
+  border-color: var(--color-primary);
 }
 .vn-bubble::after {
   content: "";
@@ -120,10 +184,11 @@ body {
   font-size: 0.875rem;
   color: var(--color-text);
   cursor: pointer;
-  transition: border-color 0.2s, transform 0.1s, box-shadow 0.1s;
+  transition: border-color 0.2s, transform 0.1s, box-shadow 0.2s, background-color 0.2s;
 }
 .pill-btn:hover {
   border-color: var(--color-primary);
+  background-color: var(--color-sakura-bg);
 }
 .pill-btn:active {
   transform: translateY(1px);
@@ -133,9 +198,9 @@ body {
 /* === Loading dots === */
 .loading-dots span {
   display: inline-block;
-  width: 6px;
-  height: 6px;
-  margin: 0 3px;
+  width: 8px;
+  height: 8px;
+  margin: 0 4px;
   border-radius: 50%;
   background: var(--color-primary);
   animation: bounce 1.4s ease-in-out infinite;
@@ -145,7 +210,7 @@ body {
 
 @keyframes bounce {
   0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
-  40% { transform: translateY(-8px); opacity: 1; }
+  40% { transform: translateY(-10px); opacity: 1; }
 }
 
 /* === Timeline bar (manga panel style) === */
@@ -153,10 +218,31 @@ body {
   border: 2px solid var(--color-border);
   border-radius: 4px;
   overflow: hidden;
-  transition: border-color 0.2s;
+  transition: border-color 0.2s, transform 0.15s ease;
 }
 .timeline-bar:hover {
   border-color: var(--color-primary);
+  transform: translateX(3px);
+}
+
+/* === Custom scrollbar for timeline === */
+.timeline-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+.timeline-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.timeline-scroll::-webkit-scrollbar-thumb {
+  background: var(--color-primary);
+  border-radius: 4px;
+  opacity: 0.5;
+}
+.timeline-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--color-accent);
+}
+.timeline-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-primary) transparent;
 }
 
 /* === Dashed separator === */

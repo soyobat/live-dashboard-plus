@@ -1,6 +1,7 @@
 import type { TimelineSegment } from "@/lib/api";
+import { getAppDescription } from "@/lib/app-descriptions";
 
-// Warm color palette for different apps (avoids purple/blue)
+// Warm color palette for different apps
 const APP_COLORS = [
   "#E8A0BF", // sakura pink
   "#88C9C9", // mint
@@ -11,7 +12,7 @@ const APP_COLORS = [
   "#D4A0A0", // dusty rose
   "#8CB8B0", // teal mist
   "#C9B97A", // gold wheat
-  "#B89EC4", // lavender mist (light, not purple)
+  "#B89EC4", // lavender mist
 ];
 
 function getAppColor(appName: string, colorMap: Map<string, string>): string {
@@ -39,7 +40,8 @@ export default function Timeline({ segments, summary }: Props) {
   if (segments.length === 0) {
     return (
       <div className="text-center py-12 text-[var(--color-text-muted)]">
-        <p className="text-lg">{"\u{1F4A4}"} No activity data for this day</p>
+        <p className="text-2xl mb-2">(ˊ・ω・ˋ)</p>
+        <p className="text-sm">今天还没有活动记录呢~</p>
       </div>
     );
   }
@@ -63,50 +65,46 @@ export default function Timeline({ segments, summary }: Props) {
             {name}
           </h3>
 
-          {/* Manga panel timeline bars */}
-          <div className="space-y-1">
-            {segs.map((seg, i) => {
-              const color = getAppColor(seg.app_name, colorMap);
-              const duration = seg.duration_minutes;
+          {/* Scrollable timeline container */}
+          <div className="max-h-[400px] overflow-y-auto pr-1 timeline-scroll">
+            <div className="space-y-1">
+              {segs.map((seg, i) => {
+                const color = getAppColor(seg.app_name, colorMap);
+                const duration = seg.duration_minutes;
 
-              return (
-                <div key={`${seg.started_at}-${i}`} className="timeline-bar flex items-stretch">
-                  {/* Time label */}
-                  <div className="flex-shrink-0 w-14 px-2 py-1.5 bg-[var(--color-cream)] flex items-center justify-center border-r-2 border-[var(--color-border)]">
-                    <span className="text-[10px] font-mono text-[var(--color-text-muted)]">
-                      {formatTime(seg.started_at)}
-                    </span>
-                  </div>
-
-                  {/* App bar */}
-                  <div
-                    className="flex-1 px-3 py-1.5 flex items-center gap-2 min-w-0"
-                    style={{ backgroundColor: `${color}22` }}
-                  >
-                    {/* Color dot */}
-                    <span
-                      className="w-2.5 h-2.5 rounded-full flex-shrink-0"
-                      style={{ backgroundColor: color }}
-                    />
-                    <span className="text-xs font-medium truncate">
-                      {seg.app_name}
-                    </span>
-                    {seg.window_title && (
-                      <span className="text-[10px] text-[var(--color-text-muted)] font-mono truncate hidden sm:inline">
-                        {seg.window_title}
+                return (
+                  <div key={`${seg.started_at}-${i}`} className="timeline-bar flex items-stretch">
+                    {/* Time label */}
+                    <div className="flex-shrink-0 w-14 px-2 py-1.5 bg-[var(--color-cream)] flex items-center justify-center border-r-2 border-[var(--color-border)]">
+                      <span className="text-[10px] font-mono text-[var(--color-text-muted)]">
+                        {formatTime(seg.started_at)}
                       </span>
-                    )}
-                  </div>
+                    </div>
 
-                  {/* Duration */}
-                  <div className="flex-shrink-0 w-14 px-2 py-1.5 bg-[var(--color-cream)] flex items-center justify-center border-l-2 border-[var(--color-border)]">
-                    <span className="text-[10px] font-mono text-[var(--color-accent)]">
-                      {duration > 0 ? `${duration}m` : "<1m"}
-                    </span>
+                    {/* App bar */}
+                    <div
+                      className="flex-1 px-3 py-1.5 flex items-center gap-2 min-w-0"
+                      style={{ backgroundColor: `${color}22` }}
+                    >
+                      <span
+                        className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                        style={{ backgroundColor: color }}
+                      />
+                      <span className="text-xs font-medium truncate">
+                        {getAppDescription(seg.app_name)}
+                      </span>
+                    </div>
+
+                    {/* Duration */}
+                    <div className="flex-shrink-0 w-14 px-2 py-1.5 bg-[var(--color-cream)] flex items-center justify-center border-l-2 border-[var(--color-border)]">
+                      <span className="text-[10px] font-mono text-[var(--color-accent)]">
+                        {duration > 0 ? `${duration}m` : "<1m"}
+                      </span>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
 
           {/* Per-device summary */}

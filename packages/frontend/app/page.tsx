@@ -7,32 +7,34 @@ import DatePicker from "@/components/DatePicker";
 import Timeline from "@/components/Timeline";
 
 export default function Home() {
-  const { current, timeline, selectedDate, changeDate, loading, error, refresh } = useDashboard();
+  const { current, timeline, selectedDate, changeDate, loading, error, viewerCount } = useDashboard();
 
   return (
     <>
-      <Header serverTime={current?.server_time} />
+      <Header serverTime={current?.server_time} viewerCount={viewerCount} />
 
       {/* Error banner */}
       {error && (
         <div className="vn-bubble mb-4 border-[var(--color-primary)]">
           <p className="text-sm text-[var(--color-primary)]">
-            {"\u{1F63F}"} Connection failed: {error}
+            (&gt;_&lt;) 连接失败了喵...
           </p>
-          <button className="pill-btn text-xs mt-2" onClick={refresh}>
-            retry
-          </button>
+          <p className="text-xs text-[var(--color-text-muted)] mt-1">
+            别担心，会自动重试的~
+          </p>
         </div>
       )}
 
       {/* Loading state */}
       {loading && !current && (
-        <div className="flex justify-center py-16">
+        <div className="flex flex-col items-center justify-center py-16 gap-3">
+          <p className="text-2xl">(=^-ω-^=)</p>
           <div className="loading-dots">
             <span />
             <span />
             <span />
           </div>
+          <p className="text-xs text-[var(--color-text-muted)]">正在加载喵~</p>
         </div>
       )}
 
@@ -44,9 +46,12 @@ export default function Home() {
               Devices
             </h2>
             {(!current.devices || current.devices.length === 0) ? (
-              <p className="text-sm text-[var(--color-text-muted)] italic">
-                No devices registered yet
-              </p>
+              <div className="text-center py-6">
+                <p className="text-lg mb-1">(´・ω・`)</p>
+                <p className="text-sm text-[var(--color-text-muted)] italic">
+                  还没有设备连接呢~
+                </p>
+              </div>
             ) : (
               current.devices.map((d) => (
                 <DeviceCard key={d.device_id} device={d} />
@@ -56,12 +61,9 @@ export default function Home() {
 
           {/* Right: timeline (wide) */}
           <div className="flex-1 min-w-0">
-            {/* Date picker + refresh */}
+            {/* Date picker */}
             <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
               <DatePicker selectedDate={selectedDate} onChange={changeDate} />
-              <button className="pill-btn text-xs" onClick={refresh}>
-                {loading ? "..." : "\u{21BB} refresh"}
-              </button>
             </div>
 
             <div className="separator-dashed mb-4" />
@@ -81,7 +83,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="mt-12 pt-4 separator-dashed text-center">
         <p className="text-[10px] text-[var(--color-text-muted)]">
-          Monika Now &middot; auto-refreshes every 10 min
+          Monika Now &middot; 每 10 秒自动刷新 &middot; (◕ᴗ◕)
         </p>
       </footer>
     </>

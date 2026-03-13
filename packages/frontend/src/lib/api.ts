@@ -6,7 +6,6 @@ export interface DeviceState {
   platform: string;
   app_id: string;
   app_name: string;
-  window_title: string;
   last_seen_at: string;
   is_online: number;
 }
@@ -18,14 +17,12 @@ export interface ActivityRecord {
   platform: string;
   app_id: string;
   app_name: string;
-  window_title: string;
   started_at: string;
 }
 
 export interface TimelineSegment {
   app_name: string;
   app_id: string;
-  window_title: string;
   started_at: string;
   ended_at: string | null;
   duration_minutes: number;
@@ -37,6 +34,7 @@ export interface CurrentResponse {
   devices: DeviceState[];
   recent_activities: ActivityRecord[];
   server_time: string;
+  viewer_count: number;
 }
 
 export interface TimelineResponse {

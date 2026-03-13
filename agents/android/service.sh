@@ -76,7 +76,7 @@ get_foreground_app() {
     dumpsys activity activities 2>/dev/null \
         | grep -m1 'mResumedActivity' \
         | sed 's/.*u0 \(.*\)\/.*/\1/' \
-        | sed 's/.*{\S* \S* \(\S*\)\/.*/\1/' \
+        | sed 's/.*{[^ ]* [^ ]* \([^ ]*\)\/.*/\1/' \
         | head -1
 }
 

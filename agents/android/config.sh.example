@@ -1,8 +1,0 @@
-#!/bin/sh
-# Live Dashboard Agent — Configuration Example
-# Copy this file to config.sh and fill in your values.
-
-SERVER_URL="https://YOUR_DOMAIN"
-TOKEN="YOUR_TOKEN_HERE"
-INTERVAL=5
-HEARTBEAT=60

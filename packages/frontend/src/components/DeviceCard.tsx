@@ -1,4 +1,5 @@
 import type { DeviceState } from "@/lib/api";
+import { getAppDescription } from "@/lib/app-descriptions";
 
 const platformIcons: Record<string, string> = {
   windows: "\u{1F5A5}",  // desktop computer
@@ -29,28 +30,20 @@ export default function DeviceCard({ device }: { device: DeviceState }) {
       <div className="flex items-center gap-2 mb-3">
         <span className="text-lg" aria-hidden="true">{icon}</span>
         <span className="font-semibold text-sm">{device.device_name}</span>
-        {/* Online/offline indicator */}
-        <span className="ml-auto text-lg" title={isOnline ? "Online" : "Offline"}>
-          {isOnline ? "\u{1F63A}" : "\u{1F4A4}"}
+        <span className="ml-auto text-xs font-medium" title={isOnline ? "Online" : "Offline"}>
+          {isOnline ? "(=^-ω-^=)" : "(-.-)zzZ"}
         </span>
       </div>
 
       {/* Current activity in VN bubble */}
       <div className="vn-bubble">
         {isOnline ? (
-          <>
-            <p className="text-sm font-medium text-[var(--color-primary)]">
-              {device.app_name}
-            </p>
-            {device.window_title && (
-              <p className="text-xs text-[var(--color-text-muted)] mt-1 font-mono truncate max-w-full">
-                {device.window_title}
-              </p>
-            )}
-          </>
+          <p className="text-sm font-medium text-[var(--color-primary)]">
+            {getAppDescription(device.app_name)}
+          </p>
         ) : (
           <p className="text-sm text-[var(--color-text-muted)] italic">
-            zzz...
+            不在线喵...
           </p>
         )}
       </div>
