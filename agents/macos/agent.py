@@ -120,9 +120,8 @@ def load_config() -> dict:
             sys.exit(1)
 
     url: str = cfg["server_url"]
-    is_localhost = url.startswith("http://localhost") or url.startswith("http://127.0.0.1")
-    if not url.startswith("https://") and not is_localhost:
-        log.error("config.json: 'server_url' must use HTTPS (got %s)", url)
+    if not url.startswith("http://") and not url.startswith("https://"):
+        log.error("config.json: 'server_url' must start with http:// or https:// (got %s)", url)
         sys.exit(1)
 
     for key, default, lo, hi in [
