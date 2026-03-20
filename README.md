@@ -24,11 +24,15 @@
 | 分支 | 风格 | 说明 |
 |------|------|------|
 | **`main`** | 经典和风 | 暖粉色系、Quicksand/Zen Maru 字体、猫耳气泡框、樱花花瓣动画 |
+| **`redesign/blossom-letter`** | 花信 · 文艺书卷 | OKLCH 暖纸色系、Fraunces/Noto Serif SC 字体、双栏布局、飘落花瓣、用量图表、AI 每日总结 |
 | **`redesign/pixel-room`** | 像素房间 | 像素风房间 + 日夜主题切换，还在开发中... |
 
 ```bash
 # 使用经典主题（默认）
 git clone https://github.com/Monika-Dream/live-dashboard.git
+
+# 使用花信文艺主题
+git clone -b redesign/blossom-letter https://github.com/Monika-Dream/live-dashboard.git
 
 # 使用像素房间主题
 git clone -b redesign/pixel-room https://github.com/Monika-Dream/live-dashboard.git
@@ -38,7 +42,13 @@ git clone -b redesign/pixel-room https://github.com/Monika-Dream/live-dashboard.
 
 ## 截图
 
-> TODO: 添加截图
+**亮色模式（设备在线）**
+
+![亮色模式](docs/preview-main-light.png)
+
+**暗色模式（设备离线）**
+
+![暗色模式](docs/preview-main-dark.png)
 
 ## 功能特性
 
@@ -443,7 +453,7 @@ git clone https://github.com/Monika-Dream/live-dashboard.git
 cd live-dashboard
 ```
 
-> 如果想用「Monika 的房间」主题，改为：`git clone -b redesign/monikas-room ...`
+> 如果想用花信文艺主题，改为：`git clone -b redesign/blossom-letter ...`
 
 ### 第二步：配置环境变量
 
