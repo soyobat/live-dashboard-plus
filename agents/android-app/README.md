@@ -8,7 +8,7 @@
 
 [`live-dashboard-v2.0.apk`](./live-dashboard-v2.0.apk) — Android 8.0+ (API 26)
 
-SHA-256: `ac1366309a501128857223f73d3810dc8610b418f28536cefee0545646ba26ec`
+SHA-256: `bc14b96b11db86294fc0439e57e604b0508e0f0180fcd925b03ecc8f908b51aa`
 
 ## 源码与详细说明
 
