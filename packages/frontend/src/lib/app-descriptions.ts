@@ -572,7 +572,18 @@ registerTemplate(
 // Gaming platforms — displayTitle IS the game title
 registerTemplate(
   ["Steam"],
-  (t) => `正在Steam玩「${t}」喵~`
+  (t) => {
+    const tl = t.toLowerCase();
+    if (tl === "steam" || tl === "") return "正在浏览 Steam 喵~";
+    if (tl === "好友列表") return "正在与 Steam 好友聊天喵~";
+    // Hash-like strings (screenshot viewer etc) or friend names — hide details
+    if (/^[0-9a-f]{20,}/i.test(t)) return "正在浏览 Steam 喵~";
+    // Check if it looks like a game name (contains letters/CJK, not just a short nickname)
+    // Short titles without spaces/special chars are likely friend nicknames
+    // Game titles typically have spaces, English words, or are longer
+    if (t.length <= 20 && !/\s/.test(t) && !/[a-z]{3,}/i.test(t)) return "正在与 Steam 好友聊天喵~";
+    return `正在Steam玩「${t}」喵~`;
+  }
 );
 registerTemplate(
   ["Epic Games"],
