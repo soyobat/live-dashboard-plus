@@ -163,13 +163,11 @@ docker compose pull && docker compose up -d
 
 从 [GitHub Releases](https://github.com/Monika-Dream/live-dashboard/releases) 下载对应平台的 Agent：
 
-| 平台 | 下载 | 需要 |
+| 平台 | 下载 | 源码 |
 |------|------|------|
-| Windows | `windows-agent.zip` | Python 3.10+ |
-| macOS | `macos-agent.zip` | Python 3.10+, 辅助功能权限 |
-| Android | `live-dashboard.apk` | Android 8.0+, Health Connect |
-
-> 也可以直接 clone 仓库，Agent 源码在 `agents/` 目录下。
+| Windows | `live-dashboard-agent.exe` | [`windows-source` 分支](https://github.com/Monika-Dream/live-dashboard/tree/windows-source/agents/windows) |
+| macOS | `macos-agent.zip` | [`macos-source` 分支](https://github.com/Monika-Dream/live-dashboard/tree/macos-source/agents/macos) |
+| Android | `live-dashboard.apk` | [`android-source` 分支](https://github.com/Monika-Dream/live-dashboard/tree/android-source/agents/android-app) |
 
 ### Windows Agent
 
@@ -179,14 +177,15 @@ docker compose pull && docker compose up -d
    pip install -r requirements.txt
    ```
 
-3. 复制 `config.example.json` 为 `config.json`，填入你的信息：
+3. 首次运行会自动弹出**设置对话框**，填入服务器地址和 Token 即可。也可以手动编辑 `config.json`：
    ```json
    {
      "server_url": "https://your-domain.com",
      "token": "第1步生成的MY_TOKEN",
      "interval_seconds": 5,
      "heartbeat_seconds": 60,
-     "idle_threshold_seconds": 300
+     "idle_threshold_seconds": 300,
+     "enable_log": false
    }
    ```
 
@@ -194,11 +193,13 @@ docker compose pull && docker compose up -d
 
 5. 或打包为 .exe：运行 `build.bat`，然后使用 `install-task.bat` 设置开机自启
 
+**系统托盘**：启动后自动最小化到系统托盘，图标颜色反映状态（绿色=在线、橙色=AFK、灰色=初始化）。右键菜单可查看状态、切换日志、打开设置或退出。如果 `pystray` 不可用，Agent 自动降级为纯命令行模式。
+
 **电量**：笔记本用户通过 `psutil.sensors_battery()` 自动获取电池信息。台式机不显示电量（正常现象）。
 
 **音乐检测**：Agent 自动扫描所有窗口，识别已知音乐播放器（Spotify、QQ音乐、网易云、foobar2000、酷狗、酷我、AIMP 等），解析窗口标题提取歌曲和歌手信息。
 
-**AFK 检测**：`idle_threshold_seconds`（默认 300 秒）控制无操作阈值。超过该时间无键鼠输入后，Agent 切换为心跳模式（仍保持在线但不追踪窗口变化），用户返回后自动恢复。
+**AFK 检测**：`idle_threshold_seconds`（默认 300 秒）控制无操作阈值。超过该时间无键鼠输入后，Agent 切换为心跳模式（仍保持在线但不追踪窗口变化），用户返回后自动恢复。**看视频或听歌时不会触发 AFK**——Agent 通过 pycaw 检测音频输出和全屏状态，即使键鼠空闲也会保持在线。
 
 ### macOS Agent
 
@@ -210,13 +211,15 @@ docker compose pull && docker compose up -d
    pip install -r requirements.txt
    ```
 
-3. 复制 `config.example.json` 为 `config.json`，填入你的信息：
+3. 首次运行会自动弹出**设置对话框**（需要 tkinter）。也可以手动编辑 `config.json`：
    ```json
    {
      "server_url": "https://your-domain.com",
      "token": "第1步生成的MY_TOKEN",
      "interval_seconds": 5,
-     "heartbeat_seconds": 60
+     "heartbeat_seconds": 60,
+     "idle_threshold_seconds": 300,
+     "enable_log": false
    }
    ```
 
@@ -224,9 +227,13 @@ docker compose pull && docker compose up -d
 
 5. **开机自启动（launchd）**：详见 `README.md`（zip 内附）
 
+**系统托盘**：与 Windows 相同的托盘图标功能（需要 pystray + Pillow）。如果不可用，自动降级为纯命令行模式。
+
 **权限**：首次运行时，macOS 会弹出权限请求，需在「系统设置 → 隐私与安全性 → 辅助功能」中授权终端或 Python。
 
 **工作原理**：通过 AppleScript 获取前台应用名和窗口标题，每 5 秒向后端上报。音乐检测支持 Spotify、Apple Music、QQ音乐、网易云音乐。
+
+**AFK 检测**：通过 IOKit 的 `HIDIdleTime` 检测键鼠空闲。与 Windows 一样，当检测到音频播放（pmset assertions）或全屏应用（AXFullScreen 属性）时，即使键鼠空闲也不会触发 AFK。
 
 ### Android App
 
@@ -554,7 +561,9 @@ git clone -b redesign/pixel-room https://github.com/Monika-Dream/live-dashboard.
 - **戏剧化描述**：以保护隐私的趣味文案替代原始应用/窗口信息（如"正在用VS Code疯狂写bug喵~"）
 - **富展示标题**：隐私允许时展示你正在看/听/写什么（如"正在YouTube看「Minecraft Tutorial」喵~"）
 - **音乐检测**：后台检测音乐播放器（Spotify、QQ音乐、网易云等），前台非音乐应用时组合显示（如"正在用VS Code疯狂写bug，一边听Artist「Song」喵~"），音乐应用前台时底部显示 ♪ 正在听
-- **AFK 检测**：Windows Agent 通过 `GetLastInputInfo` 检测键鼠空闲，超过 5 分钟（可配置）切换为心跳模式，用户返回后自动恢复
+- **AFK 检测**：Windows Agent 通过 `GetLastInputInfo` 检测键鼠空闲，macOS 通过 IOKit `HIDIdleTime`，超过 5 分钟（可配置）切换为心跳模式，用户返回后自动恢复
+- **视频/音乐 AFK 豁免**：看视频（全屏）或听歌（音频输出）时，即使键鼠空闲也不会触发 AFK（Windows 使用 pycaw + 全屏检测，macOS 使用 pmset assertions + AXFullScreen 属性）
+- **系统托盘**：Windows/macOS Agent 启动后最小化到系统托盘，图标颜色反映在线/AFK/离线状态，右键菜单可查看状态、切换日志、打开设置或退出；首次运行无 config.json 时自动弹出设置对话框
 - **三级隐私系统**：SHOW / BROWSER / HIDE 三级窗口标题分类
 - **樱花花瓣动画**：20 片 CSS 动画花瓣，自然飘摇效果，尊重 `prefers-reduced-motion` 设置
 - **夜间模式**：当所有设备离线时（Monika 不在电脑前），页面自动切换为深紫色暗夜主题，樱花花瓣变为微弱发光的萤火效果，带有交错的呼吸动画；任一设备上线后自动恢复日间模式，过渡动画 1.2 秒
@@ -629,6 +638,9 @@ git clone -b redesign/pixel-room https://github.com/Monika-Dream/live-dashboard.
 | `STATIC_DIR` | 否 | 前端静态文件目录（默认：`./public`） | `./public` |
 | `DB_PATH` | 否 | SQLite 数据库路径（默认：`/data/live-dashboard.db`） | `/data/live-dashboard.db` |
 | `DISPLAY_NAME` | 否 | 页面显示名称（默认：`Monika`）。会替换页头、状态气泡、页脚中的名字 | `Monika` |
+| `SITE_TITLE` | 否 | 浏览器标签页标题和 OpenGraph 标题（默认：`{DISPLAY_NAME} Now`） | `Monika Now` |
+| `SITE_DESC` | 否 | 页面 meta description 和 OpenGraph 描述（默认：`What is {DISPLAY_NAME} doing right now?`） | `What is Monika doing right now?` |
+| `SITE_FAVICON` | 否 | 网站图标路径，支持相对路径或 HTTPS URL（默认：`/favicon.ico`） | `/favicon.ico` |
 
 多设备支持：递增数字后缀 — `DEVICE_TOKEN_1`、`DEVICE_TOKEN_2`、`DEVICE_TOKEN_3`……
 
@@ -691,8 +703,8 @@ git clone -b redesign/pixel-room https://github.com/Monika-Dream/live-dashboard.
 |------|------|
 | 后端 | [Bun](https://bun.sh/) + TypeScript + SQLite |
 | 前端 | Next.js 15 + React 19 + Tailwind CSS 4（静态导出） |
-| Windows Agent | Python + ctypes Win32 API + psutil |
-| macOS Agent | Python + AppleScript (osascript) + psutil |
+| Windows Agent | Python + ctypes Win32 API + psutil + pystray（托盘）+ pycaw（音频检测） |
+| macOS Agent | Python + AppleScript (osascript) + psutil + pystray（托盘） |
 | Android Agent | Kotlin + Jetpack Compose + Health Connect + WorkManager |
 | 部署 | Docker（多阶段构建）+ Nginx 反向代理 |
 
@@ -730,30 +742,17 @@ live-dashboard/
 │           ├── hooks/            # useDashboard（轮询 hook）
 │           └── lib/              # API 客户端 + 戏剧化应用描述
 │
-├── agents/
-│   ├── windows/                  # Windows Agent
-│   │   ├── agent.py              # 主脚本（Win32 API + 电量）
-│   │   ├── config.json           # 配置文件（已 gitignore）
-│   │   ├── config.example.json   # 配置模板
-│   │   ├── requirements.txt      # Python 依赖
-│   │   ├── build.bat             # PyInstaller 打包
-│   │   └── install-task.bat      # Windows 计划任务自启动
-│   │
-│   ├── macos/                    # macOS Agent
-│   │   ├── agent.py              # 主脚本（AppleScript + psutil）
-│   │   ├── config.json           # 配置文件（已 gitignore）
-│   │   ├── config.json.example   # 配置模板
-│   │   └── requirements.txt      # Python 依赖
-│   │
-│   └── android-app/              # Android App（Health Connect 健康数据）
-│       ├── live-dashboard-v2.0.apk # 编译产物
-│       └── README.md             # 下载说明（源码在 android-source 分支）
-│
 ├── deploy/nginx/                 # Nginx 配置示例
+├── .github/workflows/            # CI：自动构建 Agent 并发布到 Release
 ├── start.sh                      # 一键本地启动脚本
 ├── Dockerfile                    # 多阶段构建（前端 + 后端）
 ├── docker-compose.yml            # 容器编排
 └── .env.example                  # 环境变量模板
+
+# Agent 源码在独立分支：
+# ├── windows-source/agents/windows/   # Windows Agent（Python + pystray）
+# ├── macos-source/agents/macos/       # macOS Agent（Python + AppleScript）
+# └── android-source/agents/android-app/ # Android App（Kotlin + Health Connect）
 ```
 
 ## 安全设计
@@ -813,6 +812,38 @@ bun run src/index.ts
 或写入项目根目录的 `.env` 文件。
 
 修改后无需重新构建前端，重启后端即可生效。前端通过 `/api/config` 接口动态读取显示名。
+
+### 自定义站点元数据
+
+除了显示名，你还可以自定义浏览器标签页标题、页面描述和网站图标：
+
+**Docker 部署**：
+
+```bash
+docker run -d --name live-dashboard \
+  -p 3000:3000 \
+  -v dashboard_data:/data \
+  -e HASH_SECRET=<MY_SECRET> \
+  -e DEVICE_TOKEN_1=<MY_TOKEN>:my-pc:MyPC:windows \
+  -e DISPLAY_NAME=你的名字 \
+  -e SITE_TITLE="你的名字 Now" \
+  -e SITE_DESC="看看我在干什么" \
+  -e SITE_FAVICON="/favicon.ico" \
+  ghcr.io/monika-dream/live-dashboard:latest
+```
+
+**源码部署**：
+
+```bash
+export SITE_TITLE="你的名字 Now"
+export SITE_DESC="看看我在干什么"
+export SITE_FAVICON="/favicon.ico"  # 也可以用 HTTPS 外链
+bun run src/index.ts
+```
+
+或写入 `.env` 文件。所有字段都有默认值，不设也不影响使用。
+
+前端会自动将这些值应用到 `<title>`、`<meta description>` 和 OpenGraph 标签，方便社交媒体分享时展示自定义信息。Favicon 支持站内相对路径（如 `/favicon.ico`）或 HTTPS 外链。
 
 ### 更换主题
 
