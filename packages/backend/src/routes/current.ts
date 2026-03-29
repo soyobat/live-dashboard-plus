@@ -21,11 +21,11 @@ function stripWindowTitle<T extends { window_title?: string }>(
   return records.map(({ window_title, ...rest }) => rest);
 }
 
-export function handleCurrent(clientIp: string, userAgent?: string): Response {
+export async function handleCurrent(clientIp: string, userAgent?: string): Promise<Response> {
   visitors.heartbeat(clientIp, userAgent);
 
-  const devices = getAllDeviceStates.all() as DeviceState[];
-  const recentActivities = getRecentActivities.all() as ActivityRecord[];
+  const devices = await getAllDeviceStates() as DeviceState[];
+  const recentActivities = await getRecentActivities() as ActivityRecord[];
 
   return Response.json({
     devices: preparePublicDevices(devices),

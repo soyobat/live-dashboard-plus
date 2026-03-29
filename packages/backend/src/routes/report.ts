@@ -88,7 +88,7 @@ export async function handleReport(req: Request): Promise<Response> {
 
   // Insert activity — window_title is NEVER stored (privacy: empty string)
   try {
-    insertActivity.run(
+    await insertActivity(
       device.device_id,
       device.device_name,
       device.platform,
@@ -109,7 +109,7 @@ export async function handleReport(req: Request): Promise<Response> {
 
   // Always update device state (even if activity was deduped)
   try {
-    upsertDeviceState.run(
+    await upsertDeviceState(
       device.device_id,
       device.device_name,
       device.platform,

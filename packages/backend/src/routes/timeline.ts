@@ -5,7 +5,7 @@ import {
 import type { ActivityRecord, TimelineSegment } from "../types";
 import { db } from "../db";
 
-export function handleTimeline(url: URL): Response {
+export async function handleTimeline(url: URL): Promise<Response> {
   const date = url.searchParams.get("date");
   if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
     return Response.json(
@@ -28,21 +28,29 @@ export function handleTimeline(url: URL): Response {
     const sign = offsetHours >= 0 ? "+" : "-";
     const absH = Math.floor(Math.abs(offsetHours));
     const absM = Math.round((Math.abs(offsetHours) - absH) * 60);
-    const modifier = `${sign}${String(absH).padStart(2, "0")}:${String(absM).padStart(2, "0")}`;
+    const modifier = `${sign}${String(absH).padStart(2, "")}:${String(absM).padStart(2, "")}`;
 
     // Query with timezone adjustment: convert started_at to user's local date
-    const query = deviceId
-      ? db.prepare(`SELECT * FROM activities WHERE date(started_at, '${modifier}') = ? AND device_id = ? ORDER BY started_at ASC`)
-      : db.prepare(`SELECT * FROM activities WHERE date(started_at, '${modifier}') = ? ORDER BY started_at ASC`);
-
-    activities = deviceId
-      ? (query.all(date, deviceId) as ActivityRecord[])
-      : (query.all(date) as ActivityRecord[]);
+    if (deviceId) {
+      const result = await db.execute({
+        sql: `SELECT * FROM activities WHERE date(started_at, '${modifier}') = ? AND device_id = ? ORDER BY started_at ASC`,
+        args: [date, deviceId]
+      });
+      activities = result.rows as ActivityRecord[];
+    } else {
+      const result = await db.execute({
+        sql: `SELECT * FROM activities WHERE date(started_at, '${modifier}') = ? ORDER BY started_at ASC`,
+        args: [date]
+      });
+      activities = result.rows as ActivityRecord[];
+    }
   } else {
     // No timezone offset — use UTC (backwards compatible)
-    activities = deviceId
-      ? (getTimelineByDateAndDevice.all(date, deviceId) as ActivityRecord[])
-      : (getTimelineByDate.all(date) as ActivityRecord[]);
+    if (deviceId) {
+      activities = await getTimelineByDateAndDevice(date, deviceId) as ActivityRecord[];
+    } else {
+      activities = await getTimelineByDate(date) as ActivityRecord[];
+    }
   }
 
   // Build timeline segments with duration
