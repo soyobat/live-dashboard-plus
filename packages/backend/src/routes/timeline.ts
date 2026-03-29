@@ -28,7 +28,7 @@ export async function handleTimeline(url: URL): Promise<Response> {
     const sign = offsetHours >= 0 ? "+" : "-";
     const absH = Math.floor(Math.abs(offsetHours));
     const absM = Math.round((Math.abs(offsetHours) - absH) * 60);
-    const modifier = `${sign}${String(absH).padStart(2, "")}:${String(absM).padStart(2, "")}`;
+    const modifier = `${sign}${String(absH).padStart(2, "0")}:${String(absM).padStart(2, "0")}`;
 
     // Query with timezone adjustment: convert started_at to user's local date
     if (deviceId) {
