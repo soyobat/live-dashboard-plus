@@ -84,7 +84,16 @@ export async function handleHealthData(req: Request): Promise<Response> {
   }
 
   try {
-    const inserted = insertMany(toInsert);
+    let inserted = 0;
+    await db.transaction(async () => {
+      for (const r of toInsert) {
+        const result = await db.execute({
+          sql: insertHealthRecord.sql,
+          args: [r.deviceId, r.type, r.value, r.unit, r.recordedAt, r.endTime]
+        });
+        if (result.rowsAffected > 0) inserted++;
+      }
+    });
     return Response.json({ ok: true, inserted });
   } catch (e: any) {
     console.error("[health-data] DB error:", e.message);
@@ -93,7 +102,7 @@ export async function handleHealthData(req: Request): Promise<Response> {
 }
 
 // Query endpoint for frontend (public, like /api/current and /api/timeline)
-export function handleHealthDataQuery(url: URL): Response {
+export async function handleHealthDataQuery(url: URL): Promise<Response> {
   const date = url.searchParams.get("date");
   const deviceId = url.searchParams.get("device_id");
 
@@ -116,19 +125,27 @@ export function handleHealthDataQuery(url: URL): Response {
 
       let records: HealthRecord[];
       if (deviceId) {
-        records = db.prepare(`
-          SELECT device_id, type, value, unit, recorded_at, end_time
-          FROM health_records
-          WHERE date(recorded_at, '${modifier}') = ? AND device_id = ?
-          ORDER BY recorded_at ASC
-        `).all(date, deviceId) as HealthRecord[];
+        const result = await db.execute({
+          sql: `
+            SELECT device_id, type, value, unit, recorded_at, end_time
+            FROM health_records
+            WHERE date(recorded_at, '${modifier}') = ? AND device_id = ?
+            ORDER BY recorded_at ASC
+          `,
+          args: [date, deviceId]
+        });
+        records = result.rows as HealthRecord[];
       } else {
-        records = db.prepare(`
-          SELECT device_id, type, value, unit, recorded_at, end_time
-          FROM health_records
-          WHERE date(recorded_at, '${modifier}') = ?
-          ORDER BY recorded_at ASC
-        `).all(date) as HealthRecord[];
+        const result = await db.execute({
+          sql: `
+            SELECT device_id, type, value, unit, recorded_at, end_time
+            FROM health_records
+            WHERE date(recorded_at, '${modifier}') = ?
+            ORDER BY recorded_at ASC
+          `,
+          args: [date]
+        });
+        records = result.rows as HealthRecord[];
       }
 
       return Response.json({ date, records });
@@ -145,19 +162,27 @@ export function handleHealthDataQuery(url: URL): Response {
 
     let records: HealthRecord[];
     if (deviceId) {
-      records = db.prepare(`
-        SELECT device_id, type, value, unit, recorded_at, end_time
-        FROM health_records
-        WHERE recorded_at >= ? AND recorded_at < ? AND device_id = ?
-        ORDER BY recorded_at ASC
-      `).all(startOfDay, startOfNextDay, deviceId) as HealthRecord[];
+      const result = await db.execute({
+        sql: `
+          SELECT device_id, type, value, unit, recorded_at, end_time
+          FROM health_records
+          WHERE recorded_at >= ? AND recorded_at < ? AND device_id = ?
+          ORDER BY recorded_at ASC
+        `,
+        args: [startOfDay, startOfNextDay, deviceId]
+      });
+      records = result.rows as HealthRecord[];
     } else {
-      records = db.prepare(`
-        SELECT device_id, type, value, unit, recorded_at, end_time
-        FROM health_records
-        WHERE recorded_at >= ? AND recorded_at < ?
-        ORDER BY recorded_at ASC
-      `).all(startOfDay, startOfNextDay) as HealthRecord[];
+      const result = await db.execute({
+        sql: `
+          SELECT device_id, type, value, unit, recorded_at, end_time
+          FROM health_records
+          WHERE recorded_at >= ? AND recorded_at < ?
+          ORDER BY recorded_at ASC
+        `,
+        args: [startOfDay, startOfNextDay]
+      });
+      records = result.rows as HealthRecord[];
     }
 
     return Response.json({ date, records });

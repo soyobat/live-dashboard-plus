@@ -237,7 +237,16 @@ export async function handleHealthWebhook(req: Request): Promise<Response> {
   }
 
   try {
-    const inserted = insertMany(records);
+    let inserted = 0;
+    await db.transaction(async () => {
+      for (const r of records) {
+        const result = await db.execute({
+          sql: insertHealthRecord.sql,
+          args: [r.deviceId, r.type, r.value, r.unit, r.recordedAt, r.endTime]
+        });
+        if (result.rowsAffected > 0) inserted++;
+      }
+    });
     return Response.json({ ok: true, inserted, total_parsed: records.length });
   } catch (e: any) {
     console.error("[health-webhook] DB error:", e.message);
