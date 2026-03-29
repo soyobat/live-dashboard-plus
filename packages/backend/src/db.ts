@@ -275,6 +275,6 @@ export async function cleanupOldActivities() {
   return result;
 }
 
-// Export db instance (both as default and named export for compatibility)
 export default db;
+export { db };
 export { db };
