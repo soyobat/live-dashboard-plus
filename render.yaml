@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: live-dashboard-plus
+    env: docker
+    region: oregon
+    plan: free
+    branch: main
+    repo: https://github.com/your-username/live-dashboard-plus
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: HASH_SECRET
+        generateValue: true
+      - key: TURSO_DATABASE_URL
+        sync: false
+      - key: TURSO_AUTH_TOKEN
+        sync: false
+      - key: DEVICE_TOKEN_1
+        sync: false
+      - key: DISPLAY_NAME
+        value: Your Name
+      - key: SITE_TITLE
+        value: Live Dashboard
+      - key: SITE_DESC
+        value: Real-time activity dashboard
+    disk:
+      name: static-assets
+      mountPath: /app/packages/backend/public
+      sizeGB: 1
