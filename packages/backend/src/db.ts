@@ -276,4 +276,3 @@ export async function cleanupOldActivities() {
 }
 
 export default db;
-export { db };
