@@ -13,21 +13,6 @@ const VALID_TYPES = new Set([
   "hydration", "nutrition",
 ]);
 
-const insertHealthRecord = db.prepare(`
-  INSERT INTO health_records (device_id, type, value, unit, recorded_at, end_time)
-  VALUES (?, ?, ?, ?, ?, ?)
-  ON CONFLICT(device_id, type, recorded_at, end_time) DO NOTHING
-`);
-
-const insertMany = db.transaction((records: { deviceId: string; type: string; value: number; unit: string; recordedAt: string; endTime: string }[]) => {
-  let inserted = 0;
-  for (const r of records) {
-    const result = insertHealthRecord.run(r.deviceId, r.type, r.value, r.unit, r.recordedAt, r.endTime);
-    if (result.changes > 0) inserted++;
-  }
-  return inserted;
-});
-
 export async function handleHealthData(req: Request): Promise<Response> {
   const device = authenticateToken(req.headers.get("authorization"));
   if (!device) {
@@ -88,7 +73,11 @@ export async function handleHealthData(req: Request): Promise<Response> {
     await db.transaction(async () => {
       for (const r of toInsert) {
         const result = await db.execute({
-          sql: insertHealthRecord.sql,
+          sql: `
+            INSERT INTO health_records (device_id, type, value, unit, recorded_at, end_time)
+            VALUES (?, ?, ?, ?, ?, ?)
+            ON CONFLICT(device_id, type, recorded_at, end_time) DO NOTHING
+          `,
           args: [r.deviceId, r.type, r.value, r.unit, r.recordedAt, r.endTime]
         });
         if (result.rowsAffected > 0) inserted++;
