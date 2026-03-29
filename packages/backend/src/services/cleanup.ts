@@ -1,11 +1,11 @@
 import { cleanupOldActivities, markOfflineDevices } from "../db";
 
 // Cleanup old activities every hour
-setInterval(() => {
+setInterval(async () => {
   try {
-    const result = cleanupOldActivities.run();
-    if (result.changes > 0) {
-      console.log(`[cleanup] Deleted ${result.changes} old activity records`);
+    const result = await cleanupOldActivities();
+    if (result.rowsAffected > 0) {
+      console.log(`[cleanup] Deleted ${result.rowsAffected} old activity records`);
     }
   } catch (e) {
     console.error("[cleanup] Failed:", e);
@@ -13,9 +13,9 @@ setInterval(() => {
 }, 60 * 60 * 1000);
 
 // Mark offline devices every 60 seconds
-setInterval(() => {
+setInterval(async () => {
   try {
-    markOfflineDevices.run();
+    await markOfflineDevices();
   } catch {
     // silent
   }
