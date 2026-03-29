@@ -26,6 +26,8 @@
 
 ## 快速开始
 
+### 方式一：Docker 部署（推荐本地测试）
+
 ```bash
 # 1. 生成密钥
 TOKEN=$(openssl rand -hex 16)
@@ -42,6 +44,23 @@ docker run -d --name live-dashboard \
 # 3. 打开 http://localhost:3000
 echo "Token: $TOKEN  ← Agent 配置用"
 ```
+
+### 方式二：Render 云部署（永久在线 + 数据持久化）
+
+**特点：**
+- ✅ 免费托管，无需自己的服务器
+- ✅ Turso 数据库持久化存储
+- ✅ Git 推送自动部署
+- ✅ 数据不会丢失
+
+**步骤：**
+1. 注册 [Turso](https://turso.tech/) 创建数据库
+2. Fork 本项目到你的 GitHub
+3. 在 [Render](https://render.com) 创建 Web Service
+4. 配置环境变量（详见 [CHECKLIST.md](CHECKLIST.md)）
+5. 推送代码自动部署
+
+详细步骤见 [CHECKLIST.md](CHECKLIST.md) 📋
 
 详细部署说明（docker-compose、VPS + Nginx + HTTPS）见 [Wiki - 快速部署](https://github.com/Monika-Dream/live-dashboard/wiki/快速部署)。
 
